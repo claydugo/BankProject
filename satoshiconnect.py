@@ -2,8 +2,7 @@ import mysql.connector
 from credentials import *
 
 """
-I couldn't get this to work correctly in this current form. 
-Set u and p to your username and password in a file called credentials.py in the same directory.
+This is working as intended
 From:
 https://www.w3schools.com/python/python_mysql_getstarted.asp
 """
