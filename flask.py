@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, json
 import mysql.connector
+from credentials import *
 app = Flask(__name__)
 
 mydb = mysql.connector.connect(
   host="satoshi.cis.uncw.edu",
-  user="u",
-  password="p", database ="narayanFall2020group3"
+  user=u,
+  password=p, 
+  database ="narayanFall2020group3"
 )
 
 mycursor = mydb.cursor()
