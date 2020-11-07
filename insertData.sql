@@ -2,6 +2,7 @@ SET FOREIGN_KEY_CHECKS=0;
 insert into account values(1337, 100000, 'Admin');
 insert into account values(201, 30212, 'User');
 insert into account values(202, 4002, 'User');
+insert into account values(203, 8432, "User")
 insert into account values(204, 875, 'User');
 insert into account values(205, 320, 'User');
 insert into account values(206, 7832, 'User');
