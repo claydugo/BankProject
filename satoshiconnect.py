@@ -14,21 +14,10 @@ mydb = mysql.connector.connect(
   database="narayanFall2020group3"
 )
 
-def listResult(result):
-    lst = []
-    for i in result:
-        lst.append([i])
 
-        
 mycursor = mydb.cursor()
 
-mycursor.execute("SHOW tables")
+mycursor.execute("SHOW DATABASES")
 
-tables = listResult(mycursor)
-
-# print tables
-for i in tables:
-    mycursor.execute(f"SELECT * FROM {i}")
-    result = listResult(mycursor.fetchall())
-    print(result)
-    print('-'*25)
+for x in mycursor:
+  print(x)
