@@ -33,6 +33,19 @@ def showreportfunctions():
 def showcustomer():
     return render_template('customer.html')
 
+@app.route('/employees')
+def showemployees():
+    return render_template('employees.html')
+
+
+
+@app.route('/getemployees', methods=['GET','POST'])
+def login():
+    c=str((request.form['city']))
+    print(c)
+    if(c == "Montauk"):
+           print("Done")
+    return render_template('form.html')
 
 if __name__ == "__main__":
     app.run()
