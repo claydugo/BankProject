@@ -3,15 +3,15 @@ from credentials import *
 import os
 import time
 
+
 class Menu:
-    def __init__(self, label, options, previous):
+    def __init__(self, label, options):
         self.label = label
         self.options = options
-        self.previous = previous
 
     def __str__(self):
         os.system('clear')
-        print(self.label)
+        printHeader(self.label)
         printable = ''
         menuNum = 0
         for i in self.options:
@@ -20,9 +20,15 @@ class Menu:
         return printable
 
 
+def printHeader(inner):
+    print('-'*20)
+    print(inner)
+    print('-'*20)
+
+
 def mainMenu():
     opt = ['Manage Accounts', 'Manage Employees', 'Placeholder']
-    main = Menu('Command Line Bank', opt, 'placeholder')
+    main = Menu('Command Line Bank', opt)
     print(main)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
     menuNav(uSelec)
@@ -39,12 +45,13 @@ def menuNav(uSelec):
             time.sleep(1)
             mainMenu()
 
+
 def menuExec(uSelec):
     if uSelec == 1:
         accountManagement()
         return
     elif uSelec == 2:
-        listEmployees()
+        employeeManagement()
         return
         # Deposit
     elif uSelec == 3:
@@ -58,16 +65,31 @@ def menuExec(uSelec):
         return
     elif uSelec == 6:
         getCustomerCity()
+        return
+    elif uSelec == 7:
+        listEmployees()
+        return
     else:
-        print('else lol')
+        raise Exception
+
 
 def accountManagement():
     menuBuffer = 3
     opt = ['Get Name', 'Get Balance', 'Get City']
-    account = Menu('Command Line Bank', opt, 'placeholder')
+    account = Menu('Command Line Bank Account Menu', opt)
     print(account)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
     menuNav(menuBuffer+uSelec)
+
+
+def employeeManagement():
+    menuBuffer = 6
+    opt = ['List Employees', 'Open Account', 'Create Loan']
+    account = Menu('Command Line Bank Employee Menu', opt)
+    print(account)
+    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
+    menuNav(menuBuffer+uSelec)
+
 
 def navBack():
     ans = input('Would you like to navigate back to the main menu? Y/N\n')
@@ -81,20 +103,23 @@ def navBack():
         navBack()
         return
 
+
 def initializeDB():
     mydb = mysql.connector.connect(
-      host="satoshi.cis.uncw.edu",
-      user=u,
-      password=p,
-      database="narayanFall2020group3"
+        host="satoshi.cis.uncw.edu",
+        user=u,
+        password=p,
+        database="narayanFall2020group3"
     )
     return mydb
 
+
 def getName():
-    accID = input('Please enter your account ID\n')
+    accID = input('Please enter the account ID\n')
     mydb = initializeDB()
     c = mydb.cursor()
-    c.execute(f'select cust_name from customer,account where customer.acc_id = {accID} and account.acc_id = {accID}')
+    c.execute(
+        f'select cust_name from customer,account where customer.acc_id = {accID} and account.acc_id = {accID}')
     try:
         res = c.fetchall()
         name = res[0][0]
@@ -105,8 +130,9 @@ def getName():
         time.sleep(2)
         mainMenu()
 
+
 def getBalance():
-    accID = input('Please enter your account ID\n')
+    accID = input('Please enter the account ID\n')
     mydb = initializeDB()
     c = mydb.cursor()
     c.execute(f'select balance from account where acc_id = {accID}')
@@ -122,20 +148,20 @@ def getBalance():
 
 
 def getCustomerCity():
-    accID = input('Please enter your account ID\n')
+    accID = input('Please enter the account ID\n')
     mydb = initializeDB()
     c = mydb.cursor()
-    c.execute(f'select cust_city from customer,account where customer.acc_id = {accID} and account.acc_id = {accID}')
+    c.execute(
+        f'select cust_city from customer,account where customer.acc_id = {accID} and account.acc_id = {accID}')
     try:
         res = c.fetchall()
         print(res[0][0])
+        navBack()
         return
     except:
         print(f'No account found with the ID: {accID}')
         time.sleep(2)
         mainMenu()
-
-
 
 
 def listEmployees():
@@ -147,14 +173,14 @@ def listEmployees():
     for i in range(0, len(res)):
         print(res[i][0])
     a = input('')
-    c.execute(f'select emp_name, pho_num from employee where emp_city = \'{a}\';')
+    c.execute(
+        f'select emp_name, pho_num from employee where emp_city = \'{a}\';')
     r2 = c.fetchall()
-    print('-'*20)
-    print(f'{a} Branch')
-    print('-'*20)
+    printHeader(f'{a} Branch')
     for i in range(0, len(r2)):
         print(f'Name: {r2[i][0]}\t Phone#: {r2[i][1]}')
+    navBack()
+
 
 if __name__ == '__main__':
     mainMenu()
-
