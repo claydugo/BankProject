@@ -69,6 +69,9 @@ def menuExec(uSelec):
     elif uSelec == 7:
         listEmployees()
         return
+    elif uSelec == 8:
+        openAccount()
+        return
     else:
         raise Exception
 
@@ -126,7 +129,7 @@ def getName():
         print(name)
         navBack()
     except:
-        print(f'No account found with the ID: {accID}')
+        print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
 
@@ -142,7 +145,7 @@ def getBalance():
         print(bal)
         navBack()
     except:
-        print(f'No account found with the ID: {accID}')
+        print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
 
@@ -159,7 +162,7 @@ def getCustomerCity():
         navBack()
         return
     except:
-        print(f'No account found with the ID: {accID}')
+        print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
 
@@ -181,6 +184,22 @@ def listEmployees():
         print(f'Name: {r2[i][0]}\t Phone#: {r2[i][1]}')
     navBack()
 
+
+def openAccount():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute(f'select max(acc_id) from account where acc_type = \'User\'')
+    res = c.fetchall()
+    aAccID = int(res[0][0]) + 1
+    aType = 'User'
+    aName = input('Please enter the full name of the account holder\n')
+    aCity = input('Please enter the city of the account holder\n')
+    aBal = input('Please enter the starting balance of the account holder\n')
+    cID = aAccID + 100
+    c.execute(f'insert into account values({aAccID}, {aBal}, \'{aType}\')')
+    c.execute(f'insert into customer values({cID}, \'{aName}\', \'{aCity}\', {aAccID})')
+    mydb.commit()
+    navBack()
 
 if __name__ == '__main__':
     mainMenu()

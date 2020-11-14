@@ -7,8 +7,11 @@
 [] * sum
 
 [] * average
+    for average, have a insights menu that shows account stats like average balance, amount of accounts, amount of employees(count function)
 
 [] * max
+    
+    for implementing max. Idea is to have openAccount select max accID from accounts and increment by 1.
 
 #### Nested Subqueries 
 
