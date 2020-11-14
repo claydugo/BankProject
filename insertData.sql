@@ -35,3 +35,15 @@ insert into loan values(102, 10000, 12, 833, 1, 202);
 insert into loan values(103, 3000, 40, 250, 30, 203);
 insert into loan values(104, 1000000, 5, 50000, 2, 208);
 SET FOREIGN_KEY_CHECKS=1;
+
+drop trigger IF EXISTS mainBranch;
+CREATE TRIGGER mainBranch BEFORE INSERT ON employee
+FOR EACH ROW
+    BEGIN
+        IF NEW.emp_city NOT IN (select distinct employee.emp_city from employee) THEN
+        SET NEW.emp_city = 'Montauk';
+        END IF;
+    END;
+$$
+
+DELIMITER ;
