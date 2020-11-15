@@ -4,6 +4,7 @@ import os
 import time
 
 
+
 class Menu:
     def __init__(self, label, options):
         self.label = label
@@ -25,75 +26,6 @@ def printHeader(inner):
     print(inner)
     print('-'*20)
 
-
-def mainMenu():
-    opt = ['Manage Accounts', 'Manage Employees', 'Placeholder']
-    main = Menu('Command Line Bank', opt)
-    print(main)
-    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
-    menuNav(uSelec)
-
-
-def menuNav(uSelec):
-    if uSelec == '':
-        mainMenu()
-    else:
-        try:
-            menuExec(uSelec)
-        except ValueError:
-            print('Invalid Entry, navigating back to main menu')
-            time.sleep(1)
-            mainMenu()
-
-
-def menuExec(uSelec):
-    if uSelec == 1:
-        accountManagement()
-        return
-    elif uSelec == 2:
-        employeeManagement()
-        return
-        # Deposit
-    elif uSelec == 3:
-        mainMenu()
-        return
-    elif uSelec == 4:
-        getName()
-        return
-    elif uSelec == 5:
-        getBalance()
-        return
-    elif uSelec == 6:
-        getCustomerCity()
-        return
-    elif uSelec == 7:
-        listEmployees()
-        return
-    elif uSelec == 8:
-        openAccount()
-        return
-    else:
-        raise Exception
-
-
-def accountManagement():
-    menuBuffer = 3
-    opt = ['Get Name', 'Get Balance', 'Get City']
-    account = Menu('Command Line Bank Account Menu', opt)
-    print(account)
-    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
-    menuNav(menuBuffer+uSelec)
-
-
-def employeeManagement():
-    menuBuffer = 6
-    opt = ['List Employees', 'Open Account', 'Create Loan']
-    account = Menu('Command Line Bank Employee Menu', opt)
-    print(account)
-    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
-    menuNav(menuBuffer+uSelec)
-
-
 def navBack():
     ans = input('Would you like to navigate back to the main menu? Y/N\n')
     if ans == 'Y' or ans == 'y':
@@ -107,6 +39,80 @@ def navBack():
         return
 
 
+def mainMenu():
+    opt = ['Manage Accounts', 'Manage Employees', 'Transaction History']
+    main = Menu('Command Line Bank', opt)
+    print(main)
+    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
+    print(uSelec)
+    if uSelec == 1:
+        accountManagement()
+        return
+    elif uSelec == 2:
+        employeeManagement()
+        return
+        # Deposit
+    elif uSelec == 3:
+        transactionMenu()
+        return
+
+
+
+
+
+
+def accountManagement():
+    opt = ['Get Name', 'Get Balance', 'Get City', 'Open Account','Deposit','Withdraw','Transfer']
+    account = Menu('Command Line Bank Account Menu', opt)
+    print(account)
+    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
+    print(uSelec)
+    if uSelec == 1:
+        getName()
+    elif uSelec == 2:
+        getBalance()
+    elif uSelec == 3:
+        getCustomerCity()
+    elif uSelec == 4:
+        openAccount()
+    elif uSelec == 5:
+        deposit()
+    elif uSelec == 6:
+        withdraw()
+    elif uSelec == 7:
+        transfer()
+    navBack()
+
+
+
+
+def employeeManagement():
+    opt = ['List Employees', 'Open Account', 'Create Loan']
+    account = Menu('Command Line Bank Employee Menu', opt)
+    print(account)
+    uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
+    print(uSelec)
+
+    if uSelec == 1:
+        listEmployees()
+    elif uSelec == 2:
+        print("Will add more functions later -Clay")
+    navBack()
+
+def transactionMenu():
+    opt = ['Create Save Point', 'Rollback to a previous version']
+    menu = Menu('Command Line Bank Transaction History Menu',opt)
+    print(menu)
+    uSelec = int(input(f"Select option from 1 - {len(opt)}\n"))
+    print(uSelec)
+    if uSelec == 1:
+        createSavepoint()
+    elif uSelec == 2:
+        rollBack()
+    navBack()
+
+
+
 def initializeDB():
     mydb = mysql.connector.connect(
         host="satoshi.cis.uncw.edu",
@@ -115,6 +121,20 @@ def initializeDB():
         database="narayanFall2020group3"
     )
     return mydb
+
+def createSavepoint():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    saveName = input("Enter a savepoint name for this version of the data base")
+    c.execute("START TRANSACTION;")
+    c.execute(f"SAVEPOINT {saveName};")
+    mydb.commit()
+def rollBack():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    saveName = input("Enter the saveName of the save you want to rollback")
+    c.execute(f"ROLLBACK TO {saveName};")
+    mydb.commit()
 
 
 def getName():
@@ -133,6 +153,12 @@ def getName():
         time.sleep(2)
         mainMenu()
 
+def getBalanceo(accID):
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute(f'select balance from account where acc_id = {accID}')
+    res = c.fetchall()
+    return res[0][0]
 
 def getBalance():
     accID = input('Please enter the account ID\n')
@@ -172,6 +198,7 @@ def listEmployees():
     c = mydb.cursor()
     c.execute(f'select distinct emp_city from employee;')
     res = c.fetchall()
+    print(res)
     print('Please enter the name of the city you wish to list employees for')
     for i in range(0, len(res)):
         print(res[i][0])
@@ -200,6 +227,83 @@ def openAccount():
     c.execute(f'insert into customer values({cID}, \'{aName}\', \'{aCity}\', {aAccID})')
     mydb.commit()
     navBack()
+
+def deposito(accID,amount):
+    mydb = initializeDB()
+    c = mydb.cursor()
+    oldBal = getBalanceo(accID)
+    newBal = oldBal + amount
+    c.execute(f"update account set balance = {newBal} where acc_id = " + str(accID))
+def deposit():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    accID = int(input("Enter Account ID for the recipient of the deposit: "))
+    amount = int(input("Amount to deposit: "))
+    oldBal = getBalanceo(accID)
+    newBal = oldBal + amount
+    c.execute(f"update account set balance = {newBal} where acc_id = " + str(accID))
+    mydb.commit()
+    updatedBal = getBalanceo(accID)
+    print("Old Balance: " + str(oldBal))
+    print("New Balance: " + str(updatedBal))
+def withdraw():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    accID = int(input("Enter Account ID for the recipient of the withdraw: "))
+    amount = int(input("Amount to withdraw: "))
+
+    oldBal = getBalanceo(accID)
+    if(amount > oldBal):
+        print("Insufficient funds")
+        return False
+    else:
+        newBal = oldBal - amount
+        c.execute(f"update account set balance = {newBal} where acc_id = " + str(accID))
+        mydb.commit()
+        print("Old Balance: " + str(oldBal))
+        print("New Balance: " + str(getBalanceo(accID)))
+        return True
+def withdrawo(accID,amount):
+    mydb = initializeDB()
+    c = mydb.cursor()
+    oldBal = getBalanceo(accID)
+    if(amount > oldBal):
+        print("Insufficient funds")
+
+        return False
+    else:
+        newBal = oldBal - amount
+        c.execute(f"update account set balance = {newBal} where acc_id = " + str(accID))
+        mydb.commit()
+        return True
+def transfero(accIDfrom,accIDto,amount):
+    mydb = initializeDB()
+    c = mydb.cursor()
+    try:
+        if (withdrawo(accIDfrom, amount)):
+
+            deposito(accIDto, amount)
+        else:
+            print("Insufficient Funds")
+    except:
+        print("one of the accounts do not exist")
+def transfer():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    accIDfrom = int(input("Enter the source account for the transfer: "))
+    accIDto = int(input("Enter the recipient account for the transfer: "))
+    amount = int(input("Enter the amount to transfer: "))
+    try:
+        if(withdrawo(accIDfrom,amount)):
+
+            deposito(accIDto,amount)
+        else:
+            print("Insufficient Funds")
+
+    except:
+        print("one of the accounts do not exist")
+
+
 
 if __name__ == '__main__':
     mainMenu()
