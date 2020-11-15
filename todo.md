@@ -4,30 +4,30 @@
 
 [] * group_by
 
-[] * sum
+[x] * sum
 
-[] * average
+[x] * average
     for average, have a insights menu that shows account stats like average balance, amount of accounts, amount of employees(count function)
 
-[] * max
+[x] * max
     
     for implementing max. Idea is to have openAccount select max accID from accounts and increment by 1.
 
 #### Nested Subqueries 
 
-[] need to look this one up
+[x] accomplished in bankStats menu
 
 #### Also implement
 
-[] View for accounts minus balance
+[x] View for accounts minus balance
 
-[] Triggert to disallow invalid transactions
+[x] Triggert to disallow non branch cities
 
-[] Stored function
+[x] Stored function
 
 And one more between
 
-[] Transaction processing
+[x] Transaction processing
 
 [] Prepared Statements
 
