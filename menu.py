@@ -205,7 +205,6 @@ def listEmployees():
     c = mydb.cursor()
     c.execute(f'select distinct emp_city from employee;')
     res = c.fetchall()
-    print(res)
     print('Please enter the name of the city you wish to list employees for')
     for i in range(0, len(res)):
         print(res[i][0])
@@ -215,7 +214,7 @@ def listEmployees():
     r2 = c.fetchall()
     printHeader(f'{a} Branch')
     for i in range(0, len(r2)):
-        print(f'Name: {r2[i][0]}\t Phone#: {r2[i][1]}')
+        print(f'Name: {r2[i][0]:<25}\t Phone#: {r2[i][1]}')
 
 
 def openAccount():
