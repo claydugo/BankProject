@@ -37,11 +37,21 @@ insert into loan values(104, 1000000, 5, 50000, 2, 208);
 SET FOREIGN_KEY_CHECKS=1;
 
 drop trigger IF EXISTS mainBranch;
+drop trigger IF EXISTS globalBank;
 CREATE TRIGGER mainBranch BEFORE INSERT ON employee
 FOR EACH ROW
     BEGIN
         IF NEW.emp_city NOT IN (select distinct employee.emp_city from employee) THEN
         SET NEW.emp_city = 'Montauk';
+        END IF;
+    END;
+$$
+
+CREATE TRIGGER globalBank BEFORE INSERT ON customer
+FOR EACH ROW
+    BEGIN
+        IF NEW.cust_city NOT IN (select distinct customer.cust_city from customer) THEN
+        SET NEW.cust_city = 'Montauk';
         END IF;
     END;
 $$

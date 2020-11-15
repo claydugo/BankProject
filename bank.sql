@@ -49,5 +49,4 @@ BEGIN
  RETURN (dc);
 END $$
 
-
-
+DELIMITER ;
