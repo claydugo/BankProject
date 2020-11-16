@@ -42,7 +42,7 @@ def navBack():
 
 
 def mainMenu():
-    opt = ['Account Menu', 'Employee Menu', 'Reconstruct Database']
+    opt = ['Account Menu', 'Employee Menu']
     main = Menu('Command Line Bank', opt)
     mydb = initializeDB()
     c = mydb.cursor()
@@ -54,9 +54,6 @@ def mainMenu():
         return
     elif uSelec == 2:
         employeeManagement()
-        return
-    elif uSelec == 3:
-        reconstructionMenu()
         return
 
 
@@ -99,18 +96,6 @@ def employeeManagement():
         balanceSheet()
     elif uSelec == 5:
         bankStats()
-    navBack()
-
-
-def reconstructionMenu():
-    opt = ['Reconstruct database to default settings', 'Return to a main menu']
-    menu = Menu('Command Line Bank Reconstruction Menu', opt)
-    print(menu)
-    uSelec = int(input(f"Select option from 1 - {len(opt)}\n"))
-    if uSelec == 1:
-        reconstruct()
-    elif uSelec == 2:
-        mainMenu()
     navBack()
 
 
@@ -193,17 +178,6 @@ def getCustomerCity():
         print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
-
-
-def reconstruct():
-    mydb = initializeDB()
-    c = mydb.cursor()
-    c.execute(f'source reconstruct.sql')
-    printHeader('Reconstruction in progress...')
-    time.sleep(5)
-    print('Reconstruction complete, returning to main menu')
-    time.sleep(0.5)
-
 
 def listEmployees():
     mydb = initializeDB()
