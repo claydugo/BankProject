@@ -10,7 +10,6 @@ class Menu:
         self.options = options
 
     def __str__(self):
-        os.system('clear')
         printHeader(self.label)
         printable = ''
         menuNum = 0
@@ -21,6 +20,7 @@ class Menu:
 
 
 def printHeader(inner):
+    os.system('clear')
     print('-'*len(inner))
     print(inner)
     print('-'*len(inner))
@@ -29,33 +29,26 @@ def printHeader(inner):
 def navBack():
     mydb = initializeDB()
     c = mydb.cursor()
-    keepChanges = input("Do you want to submit these changes: Y/N")
-    if keepChanges == "Y" or keepChanges == "y":
-
-        ans = input('Would you like to navigate back to the main menu? Y/N\n')
-        if ans == 'Y' or ans == 'y':
-            mainMenu()
-            return
-        elif ans == 'N' or ans == 'n':
-            time.sleep(1)
-            exit()
-        else:
-            mainMenu()
-            return
-    else:
-        c.execute("rollback;")
+    ans = input('Would you like to navigate back to the main menu? Y/N\n')
+    if ans == 'Y' or ans == 'y':
         mainMenu()
+        return
+    elif ans == 'N' or ans == 'n':
+        time.sleep(1)
+        exit()
+    else:
+        mainMenu()
+        return
 
 
 def mainMenu():
-    opt = ['Account Menu', 'Employee Menu', 'Transaction Menu']
+    opt = ['Account Menu', 'Employee Menu', 'Reconstruct Database']
     main = Menu('Command Line Bank', opt)
     mydb = initializeDB()
     c = mydb.cursor()
     c.execute('begin;')
     print(main)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
-    print(uSelec)
     if uSelec == 1:
         accountManagement()
         return
@@ -63,32 +56,27 @@ def mainMenu():
         employeeManagement()
         return
     elif uSelec == 3:
-        transactionMenu()
+        reconstructionMenu()
         return
 
 
 def accountManagement():
-    opt = ['Get Name', 'Get Balance', 'Get City',
-           'Open Account', 'Deposit', 'Withdraw', 'Transfer', 'Diamond Club']
+    opt = ['Get Account', 'Open Account', 'Deposit',
+           'Withdraw', 'Transfer', 'Diamond Club']
     account = Menu('Command Line Bank Account Menu', opt)
     print(account)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
-    print(uSelec)
     if uSelec == 1:
-        getName()
+        getAccount()
     elif uSelec == 2:
-        getBalance()
-    elif uSelec == 3:
-        getCustomerCity()
-    elif uSelec == 4:
         openAccount()
-    elif uSelec == 5:
+    elif uSelec == 3:
         deposit()
-    elif uSelec == 6:
+    elif uSelec == 4:
         withdraw()
-    elif uSelec == 7:
+    elif uSelec == 5:
         transfer()
-    elif uSelec == 8:
+    elif uSelec == 6:
         diamondClub()
     navBack()
 
@@ -114,16 +102,15 @@ def employeeManagement():
     navBack()
 
 
-def transactionMenu():
-    opt = ['Create Save Point', 'Rollback to a previous version']
-    menu = Menu('Command Line Bank Transaction History Menu', opt)
+def reconstructionMenu():
+    opt = ['Reconstruct database to default settings', 'Return to a main menu']
+    menu = Menu('Command Line Bank Reconstruction Menu', opt)
     print(menu)
     uSelec = int(input(f"Select option from 1 - {len(opt)}\n"))
-    print(uSelec)
     if uSelec == 1:
-        createSavepoint()
+        reconstruct()
     elif uSelec == 2:
-        rollBack()
+        mainMenu()
     navBack()
 
 
@@ -137,24 +124,6 @@ def initializeDB():
     return mydb
 
 
-def createSavepoint():
-    mydb = initializeDB()
-    c = mydb.cursor()
-    saveName = input(
-        "Enter a savepoint name for this version of the data base")
-    c.execute("START TRANSACTION;")
-    c.execute(f"SAVEPOINT {saveName};")
-    mydb.commit()
-
-
-def rollBack():
-    mydb = initializeDB()
-    c = mydb.cursor()
-    saveName = input("Enter the saveName of the save you want to rollback")
-    c.execute(f"ROLLBACK TO {saveName};")
-    mydb.commit()
-
-
 def getName():
     accID = input('Please enter the account ID\n')
     mydb = initializeDB()
@@ -165,11 +134,11 @@ def getName():
         res = c.fetchall()
         name = res[0][0]
         print(name)
-        navBack()
     except:
         print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
+    navBack()
 
 
 def getBalanceo(accID):
@@ -178,6 +147,19 @@ def getBalanceo(accID):
     c.execute(f'select balance from account where acc_id = {accID}')
     res = c.fetchall()
     return res[0][0]
+
+
+def getAccount():
+    accID = input('Please enter the account ID\n')
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute(
+        f'select cust_name, balance, cust_city from customer,account where customer.acc_id = {accID} and account.acc_id = {accID};')
+    res = c.fetchall()
+    name = res[0][0]
+    bal = res[0][1]
+    city = res[0][2]
+    print(f'Name: {name:<20} Balance: {bal:<11} City: {city}')
 
 
 def getBalance():
@@ -189,11 +171,11 @@ def getBalance():
         res = c.fetchall()
         bal = res[0][0]
         print(bal)
-        navBack()
     except:
         print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
+    navBack()
 
 
 def getCustomerCity():
@@ -211,6 +193,16 @@ def getCustomerCity():
         print(f'Invalid entry, navigating you back to the main menu')
         time.sleep(2)
         mainMenu()
+
+
+def reconstruct():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute(f'source reconstruct.sql')
+    printHeader('Reconstruction in progress...')
+    time.sleep(5)
+    print('Reconstruction complete, returning to main menu')
+    time.sleep(0.5)
 
 
 def listEmployees():
@@ -266,7 +258,6 @@ def diamondClub():
     c = mydb.cursor()
     c.execute(f'select cust_name, DiamondClub(balance) from account a, customer c  where DiamondClub(balance) = \'Diamond Club\' and a.acc_id = c.acc_id;')
     res = c.fetchall()
-    os.system('clear')
     printHeader('Diamond Club Members')
     print('Balance > $100,000')
     for i in range(0, len(res)):
@@ -278,7 +269,6 @@ def balanceSheet():
     c = mydb.cursor()
     c.execute(f'select * from balancesheet;')
     res = c.fetchall()
-    os.system('clear')
     printHeader('Command Line Bank Balance Sheet')
     for i in range(0, len(res)):
         print(f'Name: {res[i][0]:<25}\t Balance: {res[i][1]}')
@@ -287,7 +277,8 @@ def balanceSheet():
 def bankStats():
     mydb = initializeDB()
     c = mydb.cursor()
-    c.execute(f'select avg(balance) from account where acc_type = \'User\' and balance < 100000') 
+    c.execute(
+        f'select avg(balance) from account where acc_type = \'User\' and balance < 100000')
     avgU100 = c.fetchall()
     c.execute(
         f'select avg(balance) from account where acc_type = \'User\' and balance > 100000')
@@ -299,7 +290,8 @@ def bankStats():
 
     c.execute(f'select count(emp_id) from employee;')
     numEmps = c.fetchall()
-    c.execute(f'select count(acc_id) from account where DiamondClub(balance) = \'Diamond Club\'')
+    c.execute(
+        f'select count(acc_id) from account where DiamondClub(balance) = \'Diamond Club\'')
     numDC = c.fetchall()
     c.execute(f'select avg(balance) from account as a, (select * from customer where cust_city = \'Montauk\') as c where a.acc_id = c.acc_id;')
     avgMontauk = c.fetchall()
@@ -309,7 +301,6 @@ def bankStats():
     avgCov = c.fetchall()
     c.execute("call totalAccounts();")
     numAccs = c.fetchall()
-    os.system('clear')
     printHeader('Command Line Bank Stats')
     print(f'Cash on hand: ${cashOnHand[0][0]:,.2f}\n'
           f'Amount of employees: {numEmps[0][0]}\n'
@@ -412,6 +403,8 @@ def transfer():
 
     except:
         print("one of the accounts do not exist")
+
+
 def getTotalAccounts():
     mydb = initializeDB()
     c = mydb.cursor()
