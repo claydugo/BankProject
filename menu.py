@@ -40,7 +40,7 @@ def navBack():
 
 
 def mainMenu():
-    opt = ['Manage Accounts', 'Manage Employees', 'Transaction History']
+    opt = ['Account Menu', 'Employee Menu', 'Transaction Menu']
     main = Menu('Command Line Bank', opt)
     print(main)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
@@ -51,7 +51,6 @@ def mainMenu():
     elif uSelec == 2:
         employeeManagement()
         return
-        # Deposit
     elif uSelec == 3:
         transactionMenu()
         return
@@ -84,7 +83,8 @@ def accountManagement():
 
 
 def employeeManagement():
-    opt = ['List Employees', 'Open Account', 'Balance Sheet', 'Bank Stats']
+    opt = ['List Employees', 'Open Account',
+           'Add Employee', 'Balance Sheet', 'Bank Stats']
     account = Menu('Command Line Bank Employee Menu', opt)
     print(account)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
@@ -95,8 +95,10 @@ def employeeManagement():
     elif uSelec == 2:
         openAccount()
     elif uSelec == 3:
-        balanceSheet()
+        addEmployee()
     elif uSelec == 4:
+        balanceSheet()
+    elif uSelec == 5:
         bankStats()
     navBack()
 
@@ -233,6 +235,21 @@ def openAccount():
         f'insert into customer values({cID}, \'{aName}\', \'{aCity}\', {aAccID})')
     mydb.commit()
 
+
+def addEmployee():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute(f'select max(emp_id) from employee;')
+    res = c.fetchall()
+    eID = int(res[0][0]) + 1
+    eName = input('Please enter the full name of the newly hired employee\n')
+    eCity = input('Please enter the city of the branch the employee works\n')
+    ePho = input('Please enter the phone number of the employee\n')
+    c.execute(
+        f'insert into employee values({eID}, \'{eName}\', \'{eCity}\', {ePho})')
+    mydb.commit()
+
+
 def diamondClub():
     mydb = initializeDB()
     c = mydb.cursor()
@@ -244,22 +261,26 @@ def diamondClub():
     for i in range(0, len(res)):
         print(f'Name: {res[i][0]}')
 
+
 def balanceSheet():
     mydb = initializeDB()
     c = mydb.cursor()
-    c.execute(f'select * from balancesheet;') 
+    c.execute(f'select * from balancesheet;')
     res = c.fetchall()
     os.system('clear')
     printHeader('Command Line Bank Balance Sheet')
     for i in range(0, len(res)):
         print(f'Name: {res[i][0]:<25}\t Balance: {res[i][1]}')
 
+
 def bankStats():
     mydb = initializeDB()
     c = mydb.cursor()
-    c.execute(f'select avg(balance) from account where acc_type = \'User\' and balance < 100000') 
+    c.execute(
+        f'select avg(balance) from account where acc_type = \'User\' and balance < 100000')
     avgU100 = c.fetchall()
-    c.execute(f'select avg(balance) from account where acc_type = \'User\' and balance > 100000') 
+    c.execute(
+        f'select avg(balance) from account where acc_type = \'User\' and balance > 100000')
     avgDC = c.fetchall()
     c.execute(f'select avg(balance) from account where acc_type = \'User\'')
     avgG = c.fetchall()
@@ -269,6 +290,8 @@ def bankStats():
     numAccs = c.fetchall()
     c.execute(f'select count(emp_id) from employee;')
     numEmps = c.fetchall()
+    c.execute(f'select count(acc_id) from account where DiamondClub(balance) = \'Diamond Club\'')
+    numDC = c.fetchall()
     c.execute(f'select avg(balance) from account as a, (select * from customer where cust_city = \'Montauk\') as c where a.acc_id = c.acc_id;')
     avgMontauk = c.fetchall()
     c.execute(f'select avg(balance) from account as a, (select * from customer where cust_city = \'Los Angeles\') as c where a.acc_id = c.acc_id;')
@@ -278,15 +301,16 @@ def bankStats():
     os.system('clear')
     printHeader('Command Line Bank Stats')
     print(f'Cash on hand: ${cashOnHand[0][0]:,.2f}\n'
-            f'Amount of employees: {numEmps[0][0]}\n'
-            f'Amount of accounts: {numAccs[0][0]}\n'
-            f'Average Account Balance: ${avgG[0][0]:,.2f}\n'
-            f'Average Diamond Club Balance: ${avgDC[0][0]:,.2f}\n'
-            f'Average Standard Account Balance: ${avgU100[0][0]:,.2f}\n'
-            f'Average Balace by City\n{"-"*40}\n'
-            f'Montauk: ${avgMontauk[0][0]:,.2f}\n'
-            f'Los Angeles: ${avgLA[0][0]:,.2f}\n'
-            f'Covington: ${avgCov[0][0]:,.2f}\n')
+          f'Amount of employees: {numEmps[0][0]}\n'
+          f'Amount of accounts: {numAccs[0][0]}\n'
+          f'Amount of Diamond Club members: {numDC[0][0]}\n'
+          f'Average Account Balance: ${avgG[0][0]:,.2f}\n'
+          f'Average Diamond Club Balance: ${avgDC[0][0]:,.2f}\n'
+          f'Average Standard Account Balance: ${avgU100[0][0]:,.2f}\n'
+          f'Average Balace by City\n{"-"*40}\n'
+          f'Montauk: ${avgMontauk[0][0]:,.2f}\n'
+          f'Los Angeles: ${avgLA[0][0]:,.2f}\n'
+          f'Covington: ${avgCov[0][0]:,.2f}\n')
 
 
 def deposito(accID, amount):

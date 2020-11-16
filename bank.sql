@@ -41,7 +41,7 @@ CREATE FUNCTION DiamondClub(balance INT) RETURNS VARCHAR(20)
 BEGIN
     DECLARE dc varchar(20);
 
-    IF balance > 50000 THEN
+    IF balance > 100000 THEN
         SET dc = 'Diamond Club';
     ELSE
         SET dc = 'Not Eligible';
