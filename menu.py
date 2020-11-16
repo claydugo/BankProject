@@ -27,21 +27,32 @@ def printHeader(inner):
 
 
 def navBack():
-    ans = input('Would you like to navigate back to the main menu? Y/N\n')
-    if ans == 'Y' or ans == 'y':
-        mainMenu()
-        return
-    elif ans == 'N' or ans == 'n':
-        time.sleep(1)
-        exit()
+    mydb = initializeDB()
+    c = mydb.cursor()
+    keepChanges = input("Do you want to submit these changes: Y/N")
+    if keepChanges == "Y" or keepChanges == "y":
+
+        ans = input('Would you like to navigate back to the main menu? Y/N\n')
+        if ans == 'Y' or ans == 'y':
+            mainMenu()
+            return
+        elif ans == 'N' or ans == 'n':
+            time.sleep(1)
+            exit()
+        else:
+            navBack()
+            return
     else:
-        navBack()
-        return
+        c.execute("rollback;")
+
 
 
 def mainMenu():
     opt = ['Account Menu', 'Employee Menu', 'Transaction Menu']
     main = Menu('Command Line Bank', opt)
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute('begin;')
     print(main)
     uSelec = int(input(f'Select an option from 1 - {len(opt)}\n'))
     print(uSelec)
@@ -276,8 +287,7 @@ def balanceSheet():
 def bankStats():
     mydb = initializeDB()
     c = mydb.cursor()
-    c.execute(
-        f'select avg(balance) from account where acc_type = \'User\' and balance < 100000')
+    c.execute(f'select avg(balance) from account where acc_type = \'User\' and balance < 100000') 
     avgU100 = c.fetchall()
     c.execute(
         f'select avg(balance) from account where acc_type = \'User\' and balance > 100000')
@@ -286,8 +296,7 @@ def bankStats():
     avgG = c.fetchall()
     c.execute(f'select sum(balance) from account;')
     cashOnHand = c.fetchall()
-    c.execute(f'select count(acc_id) from account where acc_type = \'User\';')
-    numAccs = c.fetchall()
+
     c.execute(f'select count(emp_id) from employee;')
     numEmps = c.fetchall()
     c.execute(f'select count(acc_id) from account where DiamondClub(balance) = \'Diamond Club\'')
@@ -298,6 +307,8 @@ def bankStats():
     avgLA = c.fetchall()
     c.execute(f'select avg(balance) from account as a, (select * from customer where cust_city = \'Covington\') as c where a.acc_id = c.acc_id;')
     avgCov = c.fetchall()
+    c.execute("call totalAccounts();")
+    numAccs = c.fetchall()
     os.system('clear')
     printHeader('Command Line Bank Stats')
     print(f'Cash on hand: ${cashOnHand[0][0]:,.2f}\n'
@@ -401,6 +412,10 @@ def transfer():
 
     except:
         print("one of the accounts do not exist")
+def getTotalAccounts():
+    mydb = initializeDB()
+    c = mydb.cursor()
+    c.execute("EXEC totalAccounts;")
 
 
 if __name__ == '__main__':
