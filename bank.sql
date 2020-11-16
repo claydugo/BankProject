@@ -6,6 +6,8 @@ drop table IF EXISTS employee;
 drop table IF EXISTS branch;
 drop view IF EXISTS balancesheet;
 drop function IF EXISTS DiamondClub;
+drop procedure IF EXISTS totalAccounts;
+
 CREATE TABLE employee (emp_id INT NOT NULL,
                       emp_name VARCHAR(30),
                       emp_city VARCHAR(20),
@@ -49,8 +51,6 @@ BEGIN
  RETURN (dc);
 END $$
 
-DELIMITER ;
-DELIMITER $$
 CREATE PROCEDURE totalAccounts()
 BEGIN
     SELECT COUNT(acc_id) FROM account;

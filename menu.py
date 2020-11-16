@@ -40,11 +40,11 @@ def navBack():
             time.sleep(1)
             exit()
         else:
-            navBack()
+            mainMenu()
             return
     else:
         c.execute("rollback;")
-
+        mainMenu()
 
 
 def mainMenu():
