@@ -50,3 +50,9 @@ BEGIN
 END $$
 
 DELIMITER ;
+DELIMITER $$
+CREATE PROCEDURE totalAccounts()
+BEGIN
+    SELECT COUNT(acc_id) FROM account;
+END $$
+DELIMITER ;
